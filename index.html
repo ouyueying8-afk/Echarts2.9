@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>不婚影响因素与情感倾向关系图</title>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background-color: #FFF5F9;
+            font-family: 'Microsoft YaHei', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+        }
+        #chart-container {
+            width: 100%;
+            height: 100vh;
+            min-height: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chart-container"></div>
+    
+    <script>
+        // 初始化ECharts实例
+        const chartDom = document.getElementById('chart-container');
+        const myChart = echarts.init(chartDom);
+        
+        myChart.showLoading();
+        
+        // 数据定义
+        const data = {
+          nodes: [
+            // 第一层：影响因素类别（深度0）
+            { name: '经济压力', depth: 0 },
+            { name: '心理状态', depth: 0 },
+            { name: '社会观念', depth: 0 },
+            { name: '家庭背景', depth: 0 },
+            
+            // 第二层：具体关键词（深度1）
+            { name: '收入不稳定', depth: 1 },
+            { name: '房价高昂', depth: 1 },
+            { name: '职业发展', depth: 1 },
+            { name: '自由独立', depth: 1 },
+            { name: '孤独感', depth: 1 },
+            { name: '焦虑担忧', depth: 1 },
+            { name: '婚姻风险', depth: 1 },
+            { name: '传统束缚', depth: 1 },
+            { name: '个人主义', depth: 1 },
+            { name: '父母婚姻', depth: 1 },
+            { name: '家庭期望', depth: 1 },
+            
+            // 第三层：情感倾向（深度2）
+            { name: '正面情感', depth: 2 },
+            { name: '负面情感', depth: 2 }
+          ],
+          
+          links: [
+            // 经济压力 -> 具体关键词
+            { source: '经济压力', target: '收入不稳定', value: 35 },
+            { source: '经济压力', target: '房价高昂', value: 42 },
+            { source: '经济压力', target: '职业发展', value: 28 },
+            
+            // 心理状态 -> 具体关键词
+            { source: '心理状态', target: '自由独立', value: 55 },
+            { source: '心理状态', target: '孤独感', value: 38 },
+            { source: '心理状态', target: '焦虑担忧', value: 32 },
+            
+            // 社会观念 -> 具体关键词
+            { source: '社会观念', target: '婚姻风险', value: 45 },
+            { source: '社会观念', target: '传统束缚', value: 26 },
+            { source: '社会观念', target: '个人主义', value: 48 },
+            
+            // 家庭背景 -> 具体关键词
+            { source: '家庭背景', target: '父母婚姻', value: 31 },
+            { source: '家庭背景', target: '家庭期望', value: 29 },
+            
+            // 具体关键词 -> 情感倾向
+            // 经济相关
+            { source: '收入不稳定', target: '负面情感', value: 32 },
+            { source: '收入不稳定', target: '正面情感', value: 3 },
+            { source: '房价高昂', target: '负面情感', value: 40 },
+            { source: '房价高昂', target: '正面情感', value: 2 },
+            { source: '职业发展', target: '正面情感', value: 22 },
+            { source: '职业发展', target: '负面情感', value: 6 },
+            
+            // 心理相关
+            { source: '自由独立', target: '正面情感', value: 52 },
+            { source: '自由独立', target: '负面情感', value: 3 },
+            { source: '孤独感', target: '负面情感', value: 35 },
+            { source: '焦虑担忧', target: '负面情感', value: 30 },
+            { source: '焦虑担忧', target: '正面情感', value: 2 },
+            
+            // 社会观念相关
+            { source: '婚姻风险', target: '负面情感', value: 40 },
+            { source: '婚姻风险', target: '正面情感', value: 5 },
+            { source: '传统束缚', target: '负面情感', value: 24 },
+            { source: '传统束缚', target: '正面情感', value: 2 },
+            { source: '个人主义', target: '正面情感', value: 45 },
+            { source: '个人主义', target: '负面情感', value: 3 },
+            
+            // 家庭背景相关
+            { source: '父母婚姻', target: '负面情感', value: 25 },
+            { source: '父母婚姻', target: '正面情感', value: 6 },
+            { source: '家庭期望', target: '负面情感', value: 24 },
+            { source: '家庭期望', target: '正面情感', value: 5 }
+          ]
+        };
+
+        myChart.hideLoading();
+        
+        // 配置选项
+        const option = {
+            // 设置整个图表区域的粉色背景
+            backgroundColor: {
+              type: 'radial',
+              x: 0.5,
+              y: 0.5,
+              r: 0.8,
+              colorStops: [
+                {
+                  offset: 0,
+                  color: '#FFF5F9'
+                },
+                {
+                  offset: 1,
+                  color: '#FFE6F1'
+                }
+              ],
+              global: true
+            },
+            // 优化布局确保标题和图表有足够间距
+            grid: {
+              top: 150,
+              bottom: 50,
+              left: 80,
+              right: 80,
+              containLabel: true,
+              backgroundColor: 'rgba(255, 255, 255, 0.1)'
+            },
+            title: {
+              text: '不婚影响因素与情感倾向关系图',
+              subtext: '数据来源：调查统计 | 桑基图展示影响因素关联',
+              left: 'center',
+              top: 25,
+              textStyle: {
+                fontSize: 28,
+                fontWeight: 'bold',
+                color: '#C2185B',
+                fontFamily: 'Microsoft YaHei, sans-serif',
+                textShadow: '0 3px 6px rgba(194, 24, 91, 0.2)'
+              },
+              subtextStyle: {
+                color: '#D81B60',
+                fontSize: 14,
+                fontFamily: 'Microsoft YaHei, sans-serif',
+                fontWeight: 'normal'
+              }
+            },
+            // 添加粉色系图例
+            legend: {
+              show: true,
+              type: 'plain',
+              orient: 'horizontal',
+              top: 80,
+              left: 'center',
+              itemGap: 30,
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              borderColor: '#F8BBD0',
+              borderWidth: 1,
+              borderRadius: 10,
+              padding: [10, 20],
+              textStyle: {
+                color: '#880E4F',
+                fontSize: 12,
+                fontFamily: 'Microsoft YaHei, sans-serif',
+                fontWeight: '500'
+              },
+              data: [
+                {
+                  name: '第一层：影响因素',
+                  itemStyle: {
+                    color: '#F48FB1'
+                  }
+                },
+                {
+                  name: '第二层：具体关键词',
+                  itemStyle: {
+                    color: '#F06292'
+                  }
+                },
+                {
+                  name: '第三层：情感倾向',
+                  itemStyle: {
+                    color: '#EC407A'
+                  }
+                }
+              ]
+            },
+            tooltip: {
+              trigger: 'item',
+              triggerOn: 'mousemove',
+              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+              borderColor: '#EC407A',
+              borderWidth: 2,
+              borderRadius: 12,
+              padding: [14, 18],
+              textStyle: {
+                color: '#880E4F',
+                fontSize: 13,
+                fontFamily: 'Microsoft YaHei, sans-serif',
+                fontWeight: 'normal'
+              },
+              formatter: function(params) {
+                if (params.dataType === 'node') {
+                  const depthNames = ['影响因素类别', '具体关键词', '情感倾向'];
+                  const depthColors = ['#F48FB1', '#F06292', '#EC407A'];
+                  return `<div style="font-weight:bold;color:#880E4F;margin-bottom:6px;font-size:14px;border-left:4px solid ${depthColors[params.data.depth]};padding-left:8px">
+                            ${params.name}
+                          </div>
+                          <div style="color:#D81B60;font-size:12px;padding:6px 10px;background:rgba(248, 187, 208, 0.15);border-radius:6px;margin:6px 0;border:1px solid rgba(248, 187, 208, 0.3)">
+                            层级: ${depthNames[params.data.depth]}
+                          </div>`;
+                } else if (params.dataType === 'edge') {
+                  const width = Math.max(3, Math.min(10, params.data.value / 10));
+                  return `<div style="margin-bottom:8px">
+                            <div style="color:#AD1457;font-size:12px;margin-bottom:4px;font-weight:bold">来源节点</div> 
+                            <div style="font-weight:bold;color:#880E4F;padding:6px 10px;background:linear-gradient(90deg, rgba(248,187,208,0.1), rgba(240,98,146,0.1));border-radius:6px;border:1px solid rgba(248,187,208,0.2)">
+                              ${params.data.source}
+                            </div>
+                            <div style="color:#AD1457;font-size:12px;margin:10px 0 4px 0;font-weight:bold">目标节点</div>
+                            <div style="font-weight:bold;color:#880E4F;padding:6px 10px;background:linear-gradient(90deg, rgba(248,187,208,0.1), rgba(240,98,146,0.1));border-radius:6px;border:1px solid rgba(248,187,208,0.2)">
+                              ${params.data.target}
+                            </div>
+                          </div>
+                          <div style="color:#D81B60;font-weight:bold;margin-top:12px;padding-top:12px;border-top:2px dashed #F8BBD0;font-size:14px;display:flex;align-items:center;justify-content:space-between">
+                            <span>关联强度:</span>
+                            <span style="background:linear-gradient(135deg, #EC407A, #F48FB1);color:white;padding:4px 12px;border-radius:20px;box-shadow:0 2px 8px rgba(236,64,122,0.3)">
+                              ${params.data.value}
+                            </span>
+                          </div>
+                          <div style="margin-top:8px;color:#F06292;font-size:11px;background:rgba(248,187,208,0.1);padding:4px 8px;border-radius:4px;border-left:3px solid #F06292">
+                            连接线宽度: ${width.toFixed(1)} (基于关联强度)
+                          </div>`;
+                }
+              }
+            },
+            series: [
+              {
+                type: 'sankey',
+                layout: 'none',
+                data: data.nodes,
+                links: data.links,
+                top: 140,
+                bottom: 60,
+                left: '8%',
+                right: '8%',
+                emphasis: {
+                  focus: 'adjacency',
+                  blurScope: 'series',
+                  label: {
+                    show: true,
+                    color: '#C2185B',
+                    fontWeight: 'bold',
+                    fontSize: 15,
+                    fontFamily: 'Microsoft YaHei, sans-serif',
+                    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                    padding: [6, 12],
+                    borderRadius: 8,
+                    borderColor: '#F8BBD0',
+                    borderWidth: 2,
+                    shadowColor: 'rgba(194, 24, 91, 0.25)',
+                    shadowBlur: 12,
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 3
+                  },
+                  itemStyle: {
+                    color: {
+                      type: 'linear',
+                      x: 0,
+                      y: 0,
+                      x2: 1,
+                      y2: 0,
+                      colorStops: [
+                        { offset: 0, color: '#FFF5F9' },
+                        { offset: 0.5, color: '#FFEBF3' },
+                        { offset: 1, color: '#FFF5F9' }
+                      ]
+                    },
+                    borderColor: '#EC407A',
+                    borderWidth: 3,
+                    shadowBlur: 25,
+                    shadowColor: 'rgba(236, 64, 122, 0.5)',
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 0
+                  },
+                  lineStyle: {
+                    color: {
+                      type: 'linear',
+                      x: 0,
+                      y: 0,
+                      x2: 1,
+                      y2: 0,
+                      colorStops: [
+                        { offset: 0, color: 'rgba(236, 64, 122, 0.9)' },
+                        { offset: 0.5, color: 'rgba(240, 98, 146, 1)' },
+                        { offset: 1, color: 'rgba(236, 64, 122, 0.9)' }
+                      ]
+                    },
+                    curveness: 0.5,
+                    opacity: 1,
+                    shadowBlur: 25,
+                    shadowColor: 'rgba(236, 64, 122, 0.7)',
+                    shadowOffsetX: 0,
+                    shadowOffsetY: 3,
+                    width: function(params) {
+                      // 悬停时连接线更宽
+                      return Math.max(4, Math.min(15, params.data.value / 5));
+                    }
+                  }
+                },
+                nodeWidth: 22,
+                nodeGap: 30,
+                layoutIterations: 40,
+                // 根据value值动态设置连接线宽度
+                lineStyle: {
+                  color: {
+                    type: 'linear',
+                    x: 0,
+                    y: 0,
+                    x2: 1,
+                    y2: 0,
+                    colorStops: [
+                      { offset: 0, color: 'rgba(236, 64, 122, 0.85)' },
+                      { offset: 0.5, color: 'rgba(240, 98, 146, 0.95)' },
+                      { offset: 1, color: 'rgba(236, 64, 122, 0.85)' }
+                    ],
+                    global: false
+                  },
+                  curveness: 0.5,
+                  opacity: 0.95, // 提高不透明度
+                  shadowBlur: 15,
+                  shadowColor: 'rgba(236, 64, 122, 0.5)',
+                  shadowOffsetX: 0,
+                  shadowOffsetY: 2,
+                  // 动态宽度：根据value值计算
+                  width: function(params) {
+                    const value = params.data.value;
+                    // 根据value值计算宽度，最小3px，最大12px
+                    return Math.max(3, Math.min(12, value / 8));
+                  },
+                  // 添加边框效果
+                  borderColor: 'rgba(255, 255, 255, 0.7)',
+                  borderWidth: 1,
+                  // 添加发光效果
+                  shadowBlur: 20,
+                  shadowColor: 'rgba(236, 64, 122, 0.4)'
+                },
+                levels: [
+                  {
+                    depth: 0,
+                    itemStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 1,
+                        y2: 0,
+                        colorStops: [
+                          { offset: 0, color: '#FFEBF3' },
+                          { offset: 0.5, color: '#FFD1E0' },
+                          { offset: 1, color: '#FFEBF3' }
+                        ]
+                      },
+                      borderWidth: 2,
+                      borderColor: 'rgba(255, 255, 255, 0.95)',
+                      shadowBlur: 10,
+                      shadowColor: 'rgba(255, 209, 224, 0.5)'
+                    },
+                    label: {
+                      color: '#880E4F',
+                      fontWeight: 'bold',
+                      fontSize: 14,
+                      fontFamily: 'Microsoft YaHei, sans-serif',
+                      textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                    },
+                    lineStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 1,
+                        y2: 0,
+                        colorStops: [
+                          { offset: 0, color: 'rgba(236, 64, 122, 0.9)' },
+                          { offset: 0.5, color: 'rgba(240, 98, 146, 0.95)' },
+                          { offset: 1, color: 'rgba(236, 64, 122, 0.9)' }
+                        ]
+                      },
+                      width: function(params) {
+                        const value = params.data.value;
+                        return Math.max(3.5, Math.min(13, value / 7));
+                      }
+                    }
+                  },
+                  {
+                    depth: 1,
+                    itemStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 1,
+                        y2: 0,
+                        colorStops: [
+                          { offset: 0, color: '#FFD1E0' },
+                          { offset: 0.5, color: '#FFB8D0' },
+                          { offset: 1, color: '#FFD1E0' }
+                        ]
+                      },
+                      borderWidth: 2,
+                      borderColor: 'rgba(255, 255, 255, 0.95)',
+                      shadowBlur: 8,
+                      shadowColor: 'rgba(255, 184, 208, 0.4)'
+                    },
+                    label: {
+                      color: '#AD1457',
+                      fontSize: 13,
+                      fontFamily: 'Microsoft YaHei, sans-serif',
+                      fontWeight: '500',
+                      textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                    },
+                    lineStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 1,
+                        y2: 0,
+                        colorStops: [
+                          { offset: 0, color: 'rgba(240, 98, 146, 0.9)' },
+                          { offset: 0.5, color: 'rgba(236, 64, 122, 0.95)' },
+                          { offset: 1, color: 'rgba(240, 98, 146, 0.9)' }
+                        ]
+                      },
+                      width: function(params) {
+                        const value = params.data.value;
+                        return Math.max(3.5, Math.min(13, value / 7));
+                      }
+                    }
+                  },
+                  {
+                    depth: 2,
+                    itemStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 1,
+                        y2: 0,
+                        colorStops: [
+                          { offset: 0, color: '#FFB8D0' },
+                          { offset: 0.5, color: '#FF9EBC' },
+                          { offset: 1, color: '#FFB8D0' }
+                        ]
+                      },
+                      borderWidth: 2,
+                      borderColor: 'rgba(255, 255, 255, 0.95)',
+                      shadowBlur: 10,
+                      shadowColor: 'rgba(255, 158, 188, 0.4)'
+                    },
+                    label: {
+                      color: '#880E4F',
+                      fontWeight: 'bold',
+                      fontSize: 14,
+                      fontFamily: 'Microsoft YaHei, sans-serif',
+                      textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                    },
+                    lineStyle: {
+                      color: {
+                        type: 'linear',
+                        x: 0,
+                        y: 0,
+                        x2: 1,
+                        y2: 0,
+                        colorStops: [
+                          { offset: 0, color: 'rgba(236, 64, 122, 0.9)' },
+                          { offset: 0.5, color: 'rgba(216, 27, 96, 0.95)' },
+                          { offset: 1, color: 'rgba(236, 64, 122, 0.9)' }
+                        ]
+                      },
+                      width: function(params) {
+                        const value = params.data.value;
+                        return Math.max(3.5, Math.min(13, value / 7));
+                      }
+                    }
+                  }
+                ],
+                label: {
+                  color: '#880E4F',
+                  fontSize: 12,
+                  fontFamily: 'Microsoft YaHei, sans-serif',
+                  fontWeight: '500',
+                  textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                },
+                itemStyle: {
+                  borderColor: 'rgba(255, 255, 255, 0.95)',
+                  borderWidth: 2,
+                  borderRadius: 8,
+                  shadowColor: 'rgba(0, 0, 0, 0.05)',
+                  shadowBlur: 3,
+                  shadowOffsetY: 1
+                },
+                // 设置桑基图区域背景
+                backgroundStyle: {
+                  color: 'rgba(255, 245, 249, 0.3)',
+                  borderColor: 'rgba(248, 187, 208, 0.2)',
+                  borderWidth: 1,
+                  borderRadius: 12,
+                  shadowColor: 'rgba(248, 187, 208, 0.3)',
+                  shadowBlur: 15
+                },
+                hoverAnimation: true,
+                animation: true,
+                animationDuration: 1200,
+                animationEasing: 'cubicOut',
+                animationDelay: function(idx) {
+                  return Math.random() * 200;
+                }
+              }
+            ]
+        };
+
+        // 添加装饰性图形元素
+        option.graphic = [
+          {
+            type: 'rect',
+            z: -10,
+            left: 'center',
+            top: 'middle',
+            shape: {
+              width: 800,
+              height: 500
+            },
+            style: {
+              fill: {
+                type: 'linear',
+                x: 0,
+                y: 0,
+                x2: 1,
+                y2: 1,
+                colorStops: [
+                  { offset: 0, color: 'rgba(255, 245, 249, 0.8)' },
+                  { offset: 1, color: 'rgba(255, 230, 241, 0.8)' }
+                ]
+              },
+              stroke: 'rgba(248, 187, 208, 0.2)',
+              lineWidth: 2
+            }
+          },
+          {
+            type: 'text',
+            z: -5,
+            left: 'center',
+            top: 'middle',
+            style: {
+              text: '不婚因素分析',
+              fontSize: 100,
+              fontWeight: 'bold',
+              fill: 'rgba(255, 209, 224, 0.05)',
+              textAlign: 'center'
+            }
+          }
+        ];
+
+        // 应用配置
+        myChart.setOption(option);
+        
+        // 窗口大小变化时自适应
+        window.addEventListener('resize', function() {
+            myChart.resize();
+        });
+    </script>
+</body>
+</html>
